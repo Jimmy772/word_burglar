@@ -32,7 +32,10 @@ nlu:
 
 - intent: query_books
   examples: |
-    - [4.0]{"entity": "rating", "value": 4.0}
-    - [four]{"entity": "rating", "value": 4}
+    - show me books with a rating of [4.0]{"entity": "average_rating", "value": 4.0, "role": "eq"}
+    - show me books with a rating of [four]{"entity": "average_rating", "value": 4, "role": "eq"}
+    - show me books with with a rating [above 4]{"entity": "average_rating", "value": 4.0, "role": "gt"}
+    - show me books released [in 2015]{"entity": "publication_year", "value": 2015, "role": "eq"}
+    - show me books publiched [in January]{"entity": "publication_month", "value": 1, "role": "eq"}
 
 

@@ -90,3 +90,4 @@ target/
 
 # rasa models
 chat/models
+chat/.rasa

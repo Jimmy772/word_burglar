@@ -8,7 +8,9 @@ intents:
   - query_books
 
 entities:
-  - rating
+  - average_rating
+  - publication_year  
+  - publication_month
 
 responses:
   utter_greet:
