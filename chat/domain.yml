@@ -11,6 +11,7 @@ entities:
   - average_rating
   - publication_year  
   - publication_month
+  - description
 
 responses:
   utter_greet:

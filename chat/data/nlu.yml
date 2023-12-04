@@ -37,5 +37,6 @@ nlu:
     - show me books with with a rating [above 4]{"entity": "average_rating", "value": 4.0, "role": "gt"}
     - show me books released [in 2015]{"entity": "publication_year", "value": 2015, "role": "eq"}
     - show me books publiched [in January]{"entity": "publication_month", "value": 1, "role": "eq"}
+    - show me books [about the life of Adolf Hitler]{"entity": "description", "value": "the life of Adolf Hitler"}
 
 

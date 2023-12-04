@@ -12,6 +12,8 @@ from typing import Any, Text, Dict, List
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 
+from langchain.embeddings import HuggingFaceEmbeddings
+
 # Import SQL Lib
 import psycopg2
 
@@ -27,6 +29,7 @@ class QuerySQL:
             "le": "<=",
             "ge": ">="
         }
+        self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
     def query(self, conditions) -> Text:
         # Ensure conditions is a non-empty list
@@ -56,6 +59,44 @@ class QuerySQL:
             response += str(row) + "\n"
 
         return response
+    
+    # similarity search for descriptions
+    def similarity_search(self, conditions) -> Text:
+        # Ensure conditions is a non-empty list
+        if not conditions or not isinstance(conditions, list):
+            raise ValueError("Invalid conditions")
+        
+        # if similarity serach is not the only condition
+        other_entities = ['average_rating', 'publication_year', 'publication_month']
+        idx_to_check = 0
+        
+        if any(tpl[idx_to_check] in other_entities for tpl in conditions):
+            pass
+        else:
+            q = conditions[0][-1]
+            q_vector = self.embeddings.embed_query(q)
+            
+            q = f"""
+                SELECT title
+                FROM books
+                INNER JOIN langchain_pg_embedding
+                ON books.book_id = (langchain_pg_embedding.cmetadata ->> 'book_id')::integer
+                ORDER BY embedding <-> '{q_vector}'
+                LIMIT 5;
+            """
+            
+            # Execute query with the values
+            self.cursor.execute(q)
+
+            # Fetch results
+            results = self.cursor.fetchall()
+
+            # Process results and construct a response
+            response = "Here are the results:\n"
+            for row in results:
+                response += str(row) + "\n"
+
+            return response
 
 
         
@@ -93,12 +134,24 @@ class ActionQueryDatabase(Action):
         cond = [(entity["entity"], entity.get("role", ""), entity["value"])
                 for entity in message.get("entities", [])]
         
-        response = self.querysql.query(cond)
+        # entities that will require a different function
+        specific_value = ['description']
+        idx_to_check = 0
         
-        # Send the response back to the user
-        dispatcher.utter_message(response)        
+        if any(tpl[idx_to_check] in specific_value for tpl in cond):
+            response = self.querysql.similarity_search(cond)
+            
+            # Send the response back to the user
+            dispatcher.utter_message(response)        
 
-        return []
+            return []
+        else:
+            response = self.querysql.query(cond)
+            
+            # Send the response back to the user
+            dispatcher.utter_message(response)        
+
+            return []
 
     def __del__(self):
         # Close the database connection when the action server stops
