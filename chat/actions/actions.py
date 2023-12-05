@@ -66,40 +66,50 @@ class QuerySQL:
         if not conditions or not isinstance(conditions, list):
             raise ValueError("Invalid conditions")
         
-        # if similarity serach is not the only condition
-        other_entities = ['average_rating', 'publication_year', 'publication_month']
-        idx_to_check = 0
+        # Separate conditions into description and other entities
+        description_conditions = [tpl for tpl in conditions if tpl[0] == 'description']
+        other_conditions = [tpl for tpl in conditions if tpl[0] != 'description']
         
-        if any(tpl[idx_to_check] in other_entities for tpl in conditions):
-            pass
-        else:
-            q = conditions[0][-1]
+        # Build the WHERE clause based on other conditions
+        where_clause = " AND ".join([f"{col} {self.operators[op]} %s" for col, op, val in other_conditions]) if other_conditions else ""
+        
+        # Embeddings from description
+        embeddings_clause = ""
+        if description_conditions:
+            q = description_conditions[0][-1]
             q_vector = self.embeddings.embed_query(q)
-            
-            q = f"""
-                SELECT title
-                FROM books
-                INNER JOIN langchain_pg_embedding
-                ON books.book_id = (langchain_pg_embedding.cmetadata ->> 'book_id')::integer
-                ORDER BY embedding <-> '{q_vector}'
-                LIMIT 5;
-            """
-            
+            embeddings_clause = f"ORDER BY embedding <-> '{q_vector}'"
+        
+        # SQL query
+        q = f"""
+            SELECT title
+            FROM books
+            INNER JOIN langchain_pg_embedding
+            ON books.book_id = (langchain_pg_embedding.cmetadata ->> 'book_id')::integer
+            {f"WHERE {where_clause}" if where_clause else ""}
+            {embeddings_clause}
+            LIMIT 5;
+        """
+        
+        if other_conditions:
+            # Extract values from conditions
+            values = [val for col, op, val in other_conditions] 
             # Execute query with the values
+            self.cursor.execute(q, values)
+        else:
             self.cursor.execute(q)
 
-            # Fetch results
-            results = self.cursor.fetchall()
+        # Fetch results
+        results = self.cursor.fetchall()
 
-            # Process results and construct a response
-            response = "Here are the results:\n"
-            for row in results:
-                response += str(row) + "\n"
+        # Process results and construct a response
+        response = "Here are the results:\n"
+        for row in results:
+            response += str(row) + "\n"
 
-            return response
+        return response
 
 
-        
         
 class ActionQueryDatabase(Action):
     def __init__(self):

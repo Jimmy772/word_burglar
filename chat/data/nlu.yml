@@ -32,11 +32,31 @@ nlu:
 
 - intent: query_books
   examples: |
+    - show me books with a rating of [4.0]{"entity": "average_rating", "value": 4.0, "role": "eq"} published [in 2010]{"entity": "publication_year", "value": 2010, "role": "eq"}
+    - find books with [ratings higher than 4]{"entity": "average_rating", "value": 4.0, "role": "gt"} released [before 2015]{"entity": "publication_year", "value": 2015, "role": "lt"}
+    - show me historical biographies [published after 2000]{"entity": "publication_year", "value": 2000, "role": "ge"} with a rating [above 4.5]{"entity": "average_rating", "value": 4.5, "role": "gt"}
+    - find books [about artificial intelligence]{"entity": "description", "value": "artificial intelligence"} with a rating [less than 3.5]{"entity": "average_rating", "value": 3.5, "role": "lt"}
+    - recommend books [related to ancient civilizations]{"entity": "description", "value": "ancient civilizations"} published [in January]{"entity": "publication_month", "value": 1, "role": "eq"}
+    - show me books with a rating [four]{"entity": "average_rating", "value": 4, "role": "eq"} and published [after 2015]{"entity": "publication_year", "value": 2015, "role": "ge"}
+    - find historical biographies [related to World War II]{"entity": "description", "value": "World War II"} and published [before 2000]{"entity": "publication_year", "value": 2000, "role": "lt"}
+    - show me books [about the life of Adolf Hitler]{"entity": "description", "value": "the life of Adolf Hitler"} with a rating [above 4]{"entity": "average_rating", "value": 4.0, "role": "gt"}
     - show me books with a rating of [4.0]{"entity": "average_rating", "value": 4.0, "role": "eq"}
     - show me books with a rating of [four]{"entity": "average_rating", "value": 4, "role": "eq"}
     - show me books with with a rating [above 4]{"entity": "average_rating", "value": 4.0, "role": "gt"}
+    - show me books with [ratings higher than 4]{"entity": "average_rating", "value": 4.0, "role": "gt"}
+    - find books rated [less than 3.5]{"entity": "average_rating", "value": 3.5, "role": "lt"}
     - show me books released [in 2015]{"entity": "publication_year", "value": 2015, "role": "eq"}
+    - find books published [before 2010]{"entity": "publication_year", "value": 2010, "role": "lt"}
+    - show me books published [after 2020]{"entity": "publication_year", "value": 2020, "role": "gt"}
     - show me books publiched [in January]{"entity": "publication_month", "value": 1, "role": "eq"}
+    - find books from [February]{"entity": "publication_month", "value": 2, "role": "eq"}
     - show me books [about the life of Adolf Hitler]{"entity": "description", "value": "the life of Adolf Hitler"}
+    - find books [related to World War II]{"entity": "description", "value": "World War II"}
+    - recommend books [on artificial intelligence]{"entity": "description", "value": "artificial intelligence"}
+    - suggest books [set in space]{"entity": "description", "value": "set in space"}
+    - show me historical biographies [with a rating of 4.5 or above]{"entity": "average_rating", "value": 4.5, "role": "ge"}
+    - find historical biographies [published before 2000]{"entity": "publication_year", "value": 2000, "role": "lt"}
+    - show me historical biographies [in January]{"entity": "publication_month", "value": 1, "role": "eq"}
+    - find historical biographies [related to ancient civilizations]{"entity": "description", "value": "ancient civilizations"}
 
 
