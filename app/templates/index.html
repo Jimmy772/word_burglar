@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewpoint" content="width=device-width, initial-scale=1.0">
+        <title>Word Buglar</title>
+        <link rel="stylesheet" href="static/style.css">
+    </head>
+    <body>
+        <h1>book search engine</h1>
+        <form id="search-form" action="/get_books", method="post">
+            <input type="text" id="search-box" name="text" placeholder="Search anything here..." required>
+            <button type="submit">Search</button>
+        </form>
+        <div id="search-result">
+            {% if result %}
+                {% for book_url, image_url, title in zip(result.book_urls, result.image_urls, result.titles) %}
+                    <div class="book-item">
+                        <!-- How can ensure that the "p" in this link doesn't look like a link but like a normal text -->
+                        <a href="{{ book_url }}" target="_blank">
+                            <img class="resizable-image" src="{{ image_url }}" alt="{{ title }}">
+                            <p class="book-title">{{ title }}</p>                         
+                        </a>                   
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </body>
+</html>
