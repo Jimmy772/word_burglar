@@ -48,7 +48,7 @@ class QuerySQL:
             LEFT JOIN book_image_urls
             ON books.book_id = book_image_urls.book_id 
             WHERE {where_clause}
-            ORDER BY RANDOM() LIMIT 5
+            ORDER BY RANDOM() LIMIT 6;
             """
 
         # Extract values from conditions
@@ -106,7 +106,7 @@ class QuerySQL:
             ON books.book_id = book_image_urls.book_id
             {f"WHERE {where_clause}" if where_clause else ""}
             {embeddings_clause}
-            LIMIT 5;
+            LIMIT 6;
         """
         
         if other_conditions:
