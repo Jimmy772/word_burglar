@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 
 from typing import Any, Text, Dict, List
+import json
 
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
@@ -41,8 +42,14 @@ class QuerySQL:
                                      for col, op, val in conditions])
 
         # SQL query with dynamic WHERE clause
-        q = f"""SELECT title FROM books WHERE {where_clause}
-               ORDER BY RANDOM() LIMIT 5"""
+        q = f"""
+            SELECT books.book_id, image_url, title
+            FROM books
+            LEFT JOIN book_image_urls
+            ON books.book_id = book_image_urls.book_id 
+            WHERE {where_clause}
+            ORDER BY RANDOM() LIMIT 5
+            """
 
         # Extract values from conditions
         values = [val for col, op, val in conditions]
@@ -52,13 +59,22 @@ class QuerySQL:
 
         # Fetch results
         results = self.cursor.fetchall()
+        
+        # Create a list of each column
+        book_ids, image_urls, titles, book_urls = zip(*[
+            (row[0], row[1], row[2], f"https://www.goodreads.com/book/show/{row[0]}")
+            for row in results
+        ])
+        
+        # Create the JSON structure
+        result_json = {
+            "book_urls": list(book_urls),
+            "book_ids": list(book_ids),
+            "image_urls": list(image_urls),
+            "titles": list(titles)
+        }
 
-        # Process results and construct a response
-        response = "Here are the results:\n"
-        for row in results:
-            response += str(row) + "\n"
-
-        return response
+        return json.dumps(result_json, indent=2)
     
     # similarity search for descriptions
     def similarity_search(self, conditions) -> Text:
@@ -82,10 +98,12 @@ class QuerySQL:
         
         # SQL query
         q = f"""
-            SELECT title
+            SELECT books.book_id, image_url, title
             FROM books
             INNER JOIN langchain_pg_embedding
             ON books.book_id = (langchain_pg_embedding.cmetadata ->> 'book_id')::integer
+            LEFT JOIN book_image_urls
+            ON books.book_id = book_image_urls.book_id
             {f"WHERE {where_clause}" if where_clause else ""}
             {embeddings_clause}
             LIMIT 5;
@@ -101,13 +119,22 @@ class QuerySQL:
 
         # Fetch results
         results = self.cursor.fetchall()
+        
+        # Create a list of each column
+        book_ids, image_urls, titles, book_urls = zip(*[
+            (row[0], row[1], row[2], f"https://www.goodreads.com/book/show/{row[0]}")
+            for row in results
+        ])
+        
+        # Create the JSON structure
+        result_json = {
+            "book_urls": list(book_urls),
+            "book_ids": list(book_ids),
+            "image_urls": list(image_urls),
+            "titles": list(titles)
+        }
 
-        # Process results and construct a response
-        response = "Here are the results:\n"
-        for row in results:
-            response += str(row) + "\n"
-
-        return response
+        return json.dumps(result_json, indent=2)
 
 
         
@@ -167,4 +194,4 @@ class ActionQueryDatabase(Action):
         # Close the database connection when the action server stops
         if self.connection:
             self.cursor.close()
-            self.connection.close()
+            self.connection.close()            
