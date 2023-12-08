@@ -1,10 +1,6 @@
 version: "3.1"
 
 intents:
-  - greet:
-      use_entities: false
-  - goodbye:
-      use_entities: false
   - query_books
 
 entities:
@@ -14,12 +10,6 @@ entities:
   - description
 
 responses:
-  utter_greet:
-  - text: "Hey! How are you?"
-
-  utter_goodbye:
-  - text: "Bye"
-
 actions:
   - action_query_database
 
